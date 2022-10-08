@@ -1,61 +1,53 @@
 #include <bits/stdc++.h>
 using namespace std;
-int x[1500],y[1500],a[1000][1000],rk1[1000],rk2[1000],sum[1000];
-int main(){
-    set<int>s1,s2;
-    map<int,int>m1,m2;
-    int c,n;
-    scanf("%d%d",&c,&n);
-    for(int i=1;i<=n;i++){
-        scanf("%d%d",&x[i],&y[i]);
-        s1.insert(x[i]);s2.insert(y[i]);
-    }
-    int maxx=0,maxy=0;
-    int index=0;
-    for(auto item:s1){
-        m1[item]=++index;
-        rk1[index]=item;
-    }
-    maxx=index;
-    index=0;
-    for(auto item:s2){
-        m2[item]=++index;
-        rk2[index]=item;
-    }
-    maxy=index;
-    for(int i=1;i<=n;i++){
-        a[m1[x[i]]][m2[y[i]]]=1;
-    }
-    for(int i=1;i<=maxx;i++){
-        for(int j=1;j<=maxy;j++){
-            a[i][j]+=a[i-1][j]+a[i][j-1]-a[i-1][j-1];
-        }
-    }
-    // cout<<maxx<<"  "<<maxy<<endl;
-    // for(int i=1;i<=maxx;i++) cout<<rk1[i]<<"  ";
-    // puts("");
-    // for(int i=1;i<=maxy;i++) cout<<rk2[i]<<"  ";
-    // puts("");
-    int ans=1e9;
-    for(int i=1;i<=maxx;i++){
-        for(int j=i;j<=maxx;j++){
-            int width=rk1[j]+1-rk1[i];
-            for(int k=1;k<=maxy;k++){
-                sum[k]=sum[k-1]+a[j][k]-a[i-1][k]-a[j][k-1]+a[i-1][k-1];
-                int y=rk2[k]+1-width;
-                int l=1,r=k-1;
-                while(l<=r){
-                    int mid=(l+r)>>1;
-                    if(rk2[mid]>=y) r=mid-1;
-                    else l=mid+1;
-                }
-                int num=sum[k]-sum[r];
-                if(num>=c){
-                    ans=min(ans,width);
-                }
+typedef pair<int,int> PII;
+int N,C,x[1000],y[1000],d[1500];
+int sum[1500][1500],cnt;
+set<int>s;
+map<int,int>rk;
+bool check(int len){
+    for(int x1=1,x2=1;x1<=cnt;x1++){
+        while(d[x1]-d[x2]+1>len) x2++;
+        for(int y1=1,y2=1;y1<=cnt;y1++){
+            while(d[y1]-d[y2]+1>len) y2++;
+            if(sum[x1][y1]-sum[x1][y2-1]-sum[x2-1][y1]+sum[x2-1][y2-1]>=C) {
+                // cout<<x1<<" "<<y1<<" "<<x2<<" "<<y2<<"  "<<sum[x1][y1]-sum[x1][y2-1]-sum[x2-1][y1]+sum[x2-1][y2-1]<<endl;    
+                return true;
             }
         }
     }
-    printf("%d",ans);
+    return false;
+}
+int main(){
+    scanf("%d%d",&C,&N);
+    for(int i=1;i<=N;i++){
+        scanf("%d%d",&x[i],&y[i]);
+        s.insert(x[i]);
+        s.insert(y[i]);
+    }
+    for(auto num:s){
+        ++cnt;
+        rk[num]=cnt;
+        d[cnt]=num;
+    }
+    // for(int i=1;i<=cnt;i++){
+    //     cout<<d[i]<<" ";
+    // }
+    // puts("");
+    for(int i=1;i<=N;i++){
+        int rkx=rk[x[i]],rky=rk[y[i]];
+        sum[rkx][rky]++;
+    }
+    for(int i=1;i<=cnt;i++){
+        for(int j=1;j<=cnt;j++)
+            sum[i][j]+=sum[i-1][j]+sum[i][j-1]-sum[i-1][j-1];
+    }
+    int l=1,r=10000;
+    while(l<=r){
+        int mid=(l+r)>>1;
+        if(check(mid)) r=mid-1;
+        else l=mid+1;
+    }
+    printf("%d",r+1);
     return 0;
 }
