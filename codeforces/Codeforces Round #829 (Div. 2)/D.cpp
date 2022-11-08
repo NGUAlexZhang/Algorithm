@@ -13,7 +13,6 @@ int main(){
         cnt[i+1]+=(cnt[i]/(i+1));
         cnt[i]%=(i+1);
         if(cnt[i]!=0){
-            cout<<i<<endl;
             puts("No");
             return 0;
         }
